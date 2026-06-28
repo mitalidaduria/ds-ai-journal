@@ -16,7 +16,7 @@ def profile_dataframe(df: pd.DataFrame) -> pd.DataFrame:
         })
     return pd.DataFrame(profile)
 
-# ── Demonstrate type coercion risk ────────────
+# ── DEMONSTRATE TYPE COERCION RISK ──────────────────────────────────
 # Creating a dummy raw dataset with mixed types
 df_raw = pd.DataFrame({
     'txn_id':    ['T001', 'T002', 'T003'],
@@ -35,3 +35,35 @@ df_raw['timestamp'] = pd.to_datetime(df_raw['timestamp'])
 
 print("--- After Cleaning ---")
 print(profile_dataframe(df_raw))
+print("\n" + "="*50 + "\n")
+
+
+# ── STEP 3: APPLY TO PAYMENTS DATA & OPTIMIZE CATEGORIES ────────────
+# Simulating the payments dataset with a highly repetitive text column
+df_payments = pd.DataFrame({
+    'transaction_id': [f'TXN_{i}' for i in range(1000)],
+    'hour':           ['14:00', '09:00', '14:00', '21:00', '09:00'] * 200, 
+    'amount':         [150.50, 2300.00, 45.00, 99.99, 1200.00] * 200
+})
+
+print("--- Step 3: Initial Payments Profile ---")
+print(profile_dataframe(df_payments))
+
+# Check the exact memory footprint before optimization
+mem_before = df_payments['hour'].memory_usage(deep=True)
+print(f"Memory used by 'hour' as Object: {mem_before} bytes")
+print("\n" + "-"*30 + "\n")
+
+# Optimization: Convert 'hour' to a category dtype since it has low unique cardinality
+df_payments['hour'] = df_payments['hour'].astype('category')
+
+print("--- Step 3: Optimized Payments Profile ---")
+print(profile_dataframe(df_payments))
+
+# Check the exact memory footprint after optimization
+mem_after = df_payments['hour'].memory_usage(deep=True)
+print(f"Memory used by 'hour' as Category: {mem_after} bytes")
+
+# Calculate and display optimization metrics
+savings = ((mem_before - mem_after) / mem_before * 100).round(2)
+print(f" Total Memory Saved for 'hour' column: {savings}%")
