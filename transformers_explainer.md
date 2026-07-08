@@ -1,4 +1,4 @@
-
+   
 # Understanding Transformers: A Guide for Data & AI PMs
 
 The transformer architecture powers modern Large Language Models (LLMs). understanding this architecture is essential for making strategic decisions regarding context limits, API costs, latency, and system capabilities.
